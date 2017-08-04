@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>${dbName}数据字典</title>
+    <style>
+        #tables_directory {
+            width: 250px;
+            height:600px;
+            overflow-y: scroll;
+            float: left;
+        }
+        .table-info {
+            margin-left: 3px;
+            font-size: 12px;
+            text-align: center;
+            color: grey;
+            width: 15px;
+            height: 15px;
+            border: 1px solid grey;
+            display: inline-block;
+        }
+        #tables_list {
+            float: left;
+            padding-left: 30px;
+            border-left:1px solid black;
+            width: 70%;
+            height:1000px;
+            overflow-y: scroll;
+        }
+        #tables_list table {
+            padding: 10px;
+            border-collapse: collapse;
+        }
+        #tables_list table td {
+            padding: 5px;
+            border: 1px solid black;
+        }
+
+        .table-name {
+            margin-top: 20px;
+            margin-bottom:5px;
+            font-size:25px;
+            font-weight: bold;
+        }
+
+        .table-sub-head {
+            background: #517fbf;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<div>
+    <div id="tables_directory">
+        <ul>
+            #foreach( $table in $tables )
+                <li>
+                    <a href="#$table.name">$table.name</a>
+                    #if ($table.foreignKeys.size() != 0)<span class="table-info">F</span>#end
+                    #if ($table.indexs.size() != 0)<span class="table-info">I</span>#end
+                </li>
+            #end
+        </ul>
+    </div>
+    <div id="tables_list">
+
+        #foreach( $table in $tables )
+            <div class="table-name" id="$table.name">$table.comment：$table.name</div>
+            <table>
+                <thead>
+
+                <tr class="table-sub-head">
+                    <td colspan="9">列信息</td>
+                </tr>
+                <tr>
+                    <td>列名</td>
+                    <td>数据类型</td>
+                    <td>长度</td>
+                    <td>精度</td>
+                    <td>主键</td>
+                    <td>允许空</td>
+                    <td>默认值</td>
+                    <td>自增</td>
+                    <td>备注</td>
+                </tr>
+                </thead>
+                <tbody>
+                    #foreach( $column in $table.columns )
+                    <tr>
+                        <td>$column.name</td>
+                        <td>$column.type</td>
+                        <td>$column.size</td>
+                        <td>$column.digits</td>
+                        <td>$column.primaryKey</td>
+                        <td>$column.nullable</td>
+                        <td>#if (!$column.defaultVal) NULL #else $column.defaultVal #end</td>
+                        <td>$column.autoIncrement</td>
+                        <td>$column.remarks</td>
+                    </tr>
+                    #end
+
+                    <tr class="table-sub-head"><td colspan="9">外键信息</td></tr>
+                    #if ($table.foreignKeys.size() == 0)
+                        <tr><td colspan="9">无</td></tr>
+                    #else
+                        <tr>
+                            <td colspan="2">外键名</td>
+                            <td colspan="2">外键列名</td>
+                            <td colspan="2">被导入主键表名</td>
+                            <td colspan="3">被导入主键列名</td>
+                        </tr>
+                        #foreach( $foreignKey in $table.foreignKeys )
+                        <tr>
+                            <td colspan="2">$foreignKey.fkName</td>
+                            <td colspan="2">$foreignKey.fkColumnName</td>
+                            <td colspan="2"><a href="#$foreignKey.pkTableName">$foreignKey.pkTableName</a></td>
+                            <td colspan="3">$foreignKey.pkColumnName</td>
+                        </tr>
+                        #end
+                    #end
+
+
+
+                    <tr class="table-sub-head"><td colspan="9">索引信息（主键索引除外）</td></tr>
+                    #if ($table.indexs.size() == 0)
+                    <tr><td colspan="9">无</td></tr>
+                    #else
+                    <tr>
+                        <td colspan="3">索引名称</td>
+                        <td colspan="3">索引列名</td>
+                        <td colspan="3">唯一</td>
+                    </tr>
+                        #foreach( $index in $table.indexs )
+                        <tr>
+                            <td colspan="3">$index.name</td>
+                            <td colspan="3">$index.columnName</td>
+                            <td colspan="3">$index.unique</td>
+                        </tr>
+                        #end
+                    #end
+                </tbody>
+            </table>
+        #end
+
+    </div>
+</div>
+</body>
+</html>
